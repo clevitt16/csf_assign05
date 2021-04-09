@@ -26,15 +26,21 @@ public:
 
     int evalExpr(const std::string &expr, int &result) {
 		vector<string> tokens = tokenize(expr);
-		if (tokens.size() == 1) {
+		int size = tokens.size()
+		if (size == 1) {    // length 1: could be operand or error (Casey)
 			if (isInt(tokens[0])) {
-				
-			}
-		}
-		for (vector::iterator it = tokens.begin(); it != tokens.end(); it++) {
-			
 
+			}
+			// also check for quit
+		} else if (size == 3) {  // (Trisha)
+			// write eval_operation function
+
+		} else if (size == 5) {  // (Trisha)
+
+		} else {
+			// error! 
 		}
+
 	}
 
 private:
