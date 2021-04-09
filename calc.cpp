@@ -4,7 +4,7 @@
 #include <map>
 #include <vector>
 #include <sstream>
-#include <bool>
+
 
 using std::string;
 using std::cout;
@@ -24,21 +24,29 @@ public:
     Calc();
     ~Calc();
 
-    int evalExpr(const std::string &expr, int &result) {
+    int evalExpr(const std::string &expr, int &result) {  // on error, just return 0!
 		vector<string> tokens = tokenize(expr);
-		int size = tokens.size()
+		int size = tokens.size();
 		if (size == 1) {    // length 1: could be operand or error (Casey)
-			if (isInt(tokens[0])) {
-
+			string tok = tokens[1];
+			if (isInt(tok)) {
+				result = std::stoi(tok);
+				return 1;
+			} // check map for value of variable
+			map<string, int>::iterator it = variables.find(tok);
+			if (it == variables.end()) {
+				return 0;
 			}
-			// also check for quit
+			result = variables[tok];
+			return 1;
+			// also check for quit - jk, actually handled in calcInteractive!
 		} else if (size == 3) {  // (Trisha)
 			// write eval_operation function
 
 		} else if (size == 5) {  // (Trisha)
 
 		} else {
-			// error! 
+			return 0;
 		}
 
 	}
