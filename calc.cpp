@@ -41,10 +41,23 @@ public:
 			return 1;
 			// also check for quit - jk, actually handled in calcInteractive!
 		} else if (size == 3) {  // (Trisha)
-			// write eval_operation function
-
+			return performOp(tokens[0], tokens[1], tokens[2]); 
+			
 		} else if (size == 5) {  // (Trisha)
+			int result = performOp(tokens[2], tokens[3], token[4]);
 
+			map<string, int>::iterator it = variables.find(tokens[0]);
+                        if (it == variables.end()) {
+			    variables.push_back(result); 
+                        } else {
+			    if (!isVarName(tokens[0])) {
+				return 0; 
+			    }
+			    variables[tokens[0]] = result; 
+			} 
+			if (tokens[1] != "=") {
+			    return 0; 
+			}
 		} else {
 			return 0;
 		}
@@ -87,7 +100,7 @@ private:
 		if (ss.fail()) {
 			return false;
 		}
-		return false;
+		return true;
 	}
 
 
@@ -100,7 +113,51 @@ private:
 		}
 		return true;
 	}
+
+	int performOp (const string &num1, const string &op, const string &num2) {
+		int left, right;
+		if (isInt(num1)) {
+		    stringstream ss;
+		    ss << num1;
+		    ss >> left;
+		} else if (isVarName(num1)) {
+		    map<string, int>::iterator it = variables.find(num1);
+                    if (it == variables.end()) {
+			    return 0;
+		    }
+		    left = variables[num1]; 
+		} 
+
+		if (isInt(num2)) {
+                    stringstream ss;
+                    ss << num2;
+                    ss >> right;
+                } else if (isVarName(num2)) {
+                    map<string, int>::iterator it = variables.find(num2);
+                    if (it == variables.end()) {
+                            return 0;
+                    }
+                    right = variables[num2];
+                }
+		    
+		switch(c) {
+		    case '+': 
+			return left + right; 
+		    case '-': 
+			return left - right; 
+		    case '*': 
+			return left * right; 
+		    case '/': 
+			if (right == 0) { /* exit */ }
+			return left / right; 
+		    default: 
+			//exit 
+		}
+
+
+	}
 	
+
 };
 
 
