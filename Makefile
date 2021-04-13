@@ -23,6 +23,7 @@ all : $(PROGRAMS)
 # Use this target to create solution.zip that you can submit to Gradescope
 .PHONY: solution.zip
 solution.zip :
+	rm solution.zip
 	zip -9r solution.zip *.c *.cpp *.h Makefile README
 
 calcTest : calcTest.o calc.o tctest.o

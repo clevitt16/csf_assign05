@@ -21,11 +21,12 @@ private:
 public:
     // public member functions
     Calc();
-    ~Calc();
+    ~Calc(); 
 
     int evalExpr(const std::string &expr, int &result) {  // on error, just return 0!
 		vector<string> tokens = tokenize(expr);
 		int size = tokens.size();
+		bool success = false; 
 		if (size == 1) {    // length 1: could be operand or error (Casey)
 			string tok = tokens[1];
 			if (isInt(tok)) {
@@ -40,15 +41,13 @@ public:
 			return 1;
 			// also check for quit - jk, actually handled in calcInteractive!
 		} else if (size == 3) {  // (Trisha)
-			bool success = false; 
 			int value =  performOp(tokens[0], tokens[1], tokens[2], success); 
 			if (!success) {
 			    return 0; 
 			} 
 			result = value; 
 		} else if (size == 5) {  // (Trisha)
-			int success = false; 
-			int value = performOp(tokens[2], tokens[3], token[4], success);
+			int value = performOp(tokens[2], tokens[3], tokens[4], success);
 			if (!success) {
 			    return 0; 
 			}
@@ -60,11 +59,11 @@ public:
 			}
 			variables[tokens[0]] = value; 
 			result = value; 
-		} else {
-			return 0;
-		}
+		} 
+		
+	    return 0; 	
 
-	}
+	};
 
 private:
     // private member functions
@@ -76,10 +75,10 @@ private:
         	vec.push_back(tok);
 	   }
 	   return vec;
-	}
+	};
 
 	int isOp (const string &expr) {
-		char c = string[0];
+		char c = expr[0];
 		switch(c) {
 			case '+':
 			case '-': 
@@ -91,7 +90,7 @@ private:
 				return 0;
 		}
 		return 0;
-	}
+	};
 
 	
 	bool isInt (const string &expr) {
@@ -103,18 +102,18 @@ private:
 			return false;
 		}
 		return true;
-	}
+	};
 
 
 	bool isVarName (const string &expr) {
-		for (string::iterator it = expr.begin(); it != expr.end(); it++) {
+		for (string::const_iterator it = expr.begin(); it != expr.end(); it++) {
 			char c = *it;
 			if (!(c >= 'A' && c <= 'Z') && !(c >= 'a' && c <= 'z')) {
 				return false;
 			}
 		}
 		return true;
-	}
+	};
 
 	int performOp (const string &num1, const string &op, const string &num2, bool &success) {
 		int left, right;
@@ -122,10 +121,11 @@ private:
 		left = getNumForOp(num1, success); 
 		if (!success) { return 0; } 
 
-		right = getNumForOp(num1, success);
+		right = getNumForOp(num2, success);
 		if (!success) { return 0; }
 
 		success = true; 
+		char c = op[0]; 
 		switch(c) {
 		    case '+': 
 			return left + right; 
@@ -145,15 +145,17 @@ private:
 
 		return 0; 
 
-	} 
+	};
 
 	int getNumForOp (const string &numStr, bool &success) {
+	    int numVal; 
 	    if (isInt(numStr)) {
                     stringstream ss;
                     ss << numStr;
                     ss >> numVal;
 		    success = true; 
 		    return numVal;
+	    }
 	    if (isVarName(numStr)) {
 		map<string, int>::iterator it = variables.find(numStr);
                 if (it != variables.end()) {
@@ -164,7 +166,7 @@ private:
 
 	    success = false; 
 	    return 0; 
-	} 
+	};
 	
 
 };
@@ -187,3 +189,4 @@ extern "C" void calc_destroy(struct Calc *calc) {
 extern "C" int calc_eval(struct Calc *calc, const char *expr, int *result) {
     return calc->evalExpr(expr, *result);
 }
+
