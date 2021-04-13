@@ -20,7 +20,6 @@ int main(int argc, char **argv) {
 	int listeningFD = open_listenfd(argv[1]);
 	struct Calc * calc = calc_create();
 	while(1) {
-		struct sockaddr_in clientaddr;
 		int clientFD = accept(listeningFD, NULL, NULL);
 		int chatStatus = chat_with_client(calc, clientFD, clientFD);
 		close(clientFD);
@@ -29,7 +28,7 @@ int main(int argc, char **argv) {
 			break;
 		}
 	}
-
+	calc_destroy(calc);
 	return 0;
 }
 
