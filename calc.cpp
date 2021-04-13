@@ -20,24 +20,24 @@ private:
 
 public:
     // public member functions
-    Calc();
-    ~Calc(); 
+//    Calc();
+//    ~Calc(); 
 
     int evalExpr(const std::string &expr, int &result) {  // on error, just return 0!
 		vector<string> tokens = tokenize(expr);
 		int size = tokens.size();
 		bool success = false; 
 		if (size == 1) {    // length 1: could be operand or error (Casey)
-			string tok = tokens[1];
-			if (isInt(tok)) {
-				result = std::stoi(tok);
+			//string tok = tokens[1];
+			if (isInt(tokens[0])) {
+				result = std::stoi(tokens[0]);
 				return 1;
 			} // check map for value of variable
-			map<string, int>::iterator it = variables.find(tok);
+			map<string, int>::iterator it = variables.find(tokens[0]);
 			if (it == variables.end()) {
 				return 0;
 			}
-			result = variables[tok];
+			result = variables[tokens[0]];
 			return 1;
 			// also check for quit - jk, actually handled in calcInteractive!
 		} else if (size == 3) {  // (Trisha)
@@ -46,6 +46,7 @@ public:
 			    return 0; 
 			} 
 			result = value; 
+			return 1; 
 		} else if (size == 5) {  // (Trisha)
 			int value = performOp(tokens[2], tokens[3], tokens[4], success);
 			if (!success) {
@@ -54,11 +55,13 @@ public:
 			if (tokens[1] != "=") {
 			    return 0; 
 			}
+			
 			if (!isVarName(tokens[0])) {
 			    return 0;
 			}
 			variables[tokens[0]] = value; 
 			result = value; 
+			return 1; 
 		} 
 		
 	    return 0; 	
@@ -75,21 +78,6 @@ private:
         	vec.push_back(tok);
 	   }
 	   return vec;
-	};
-
-	int isOp (const string &expr) {
-		char c = expr[0];
-		switch(c) {
-			case '+':
-			case '-': 
-			case '*':
-			case '/':
-				return c;
-				break;
-			default:
-				return 0;
-		}
-		return 0;
 	};
 
 	
@@ -117,12 +105,15 @@ private:
 
 	int performOp (const string &num1, const string &op, const string &num2, bool &success) {
 		int left, right;
-		
-		left = getNumForOp(num1, success); 
-		if (!success) { return 0; } 
-
+	
 		right = getNumForOp(num2, success);
 		if (!success) { return 0; }
+		
+		if (op == "=") {
+		    return performAssign(num1, right, success); 	
+		}
+		left = getNumForOp(num1, success); 
+		if (!success) { return 0; } 
 
 		success = true; 
 		char c = op[0]; 
@@ -147,6 +138,18 @@ private:
 
 	};
 
+	int performAssign(const string &var, int value, bool &success) {
+
+	    if (!isVarName(var)) {
+		success = false; 
+		return 0;
+            }
+
+	    success = true; 
+            variables[var] = value;
+            return value; 
+	
+	}
 	int getNumForOp (const string &numStr, bool &success) {
 	    int numVal; 
 	    if (isInt(numStr)) {
