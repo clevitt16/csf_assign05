@@ -19,46 +19,47 @@ private:
     map<string, int> variables;
 
 public:
-    // public member functions
-//    Calc();
-//    ~Calc(); 
-
     int evalExpr(const std::string &expr, int &result) {  // on error, just return 0!
 		vector<string> tokens = tokenize(expr);
 		int size = tokens.size();
-		bool success = false; 
-		if (size == 1) {    // length 1: could be operand or error (Casey)
-			//string tok = tokens[1];
-			if (isInt(tokens[0])) {
-				result = std::stoi(tokens[0]);
-				return 1;
-			} // check map for value of variable
-			map<string, int>::iterator it = variables.find(tokens[0]);
-			if (it == variables.end()) {
-				return 0;
+		bool success = false; //used to track whether operation pefromed successfully
+		if (size == 1) {    // length 1: could be operand or error 
+			int value = getInt(tokens[0], success); 
+			if (success) { //valid number
+			    result = value; 
+			    return 1; 
 			}
-			result = variables[tokens[0]];
-			return 1;
-			// also check for quit - jk, actually handled in calcInteractive!
-		} else if (size == 3) {  // (Trisha)
+
+			 // check map for value of variable
+			map<string, int>::iterator it = variables.find(tokens[0]);
+			if (it != variables.end()) { //variable in the map
+			    result = variables[tokens[0]]; //get the variable from the map 
+			    return 1;
+			} 
+			
+			return 0; //not a number, not a variable in the map
+			
+		} else if (size == 3) {  // Can be an operation (with numbers or variables) or an assignment
 			int value =  performOp(tokens[0], tokens[1], tokens[2], success); 
 			if (!success) {
 			    return 0; 
 			} 
 			result = value; 
 			return 1; 
-		} else if (size == 5) {  // (Trisha)
-			int value = performOp(tokens[2], tokens[3], tokens[4], success);
-			if (!success) {
-			    return 0; 
-			}
-			if (tokens[1] != "=") {
-			    return 0; 
-			}
+		} else if (size == 5) {  // Assignment to an operation
 			
-			if (!isVarName(tokens[0])) {
-			    return 0;
-			}
+			//must be an assignment operation
+			if (tokens[1] != "=") { return 0; }
+			
+			 //cannot have two assignment operations (a = 5 = 3)
+			if (tokens[3] == "=") {  return 0; }
+			
+			//assignment must happen with a variable
+			if (!isVarName(tokens[0])) { return 0; }
+			
+			int value = performOp(tokens[2], tokens[3], tokens[4], success);
+			
+			if (!success) { return 0; }
 			variables[tokens[0]] = value; 
 			result = value; 
 			return 1; 
@@ -69,7 +70,6 @@ public:
 	};
 
 private:
-    // private member functions
 	vector<string> tokenize(const string &expr) {
 	   vector<string> vec;
 	   stringstream s(expr);
@@ -81,22 +81,24 @@ private:
 	};
 
 	
-	bool isInt (const string &expr) {
+	int getInt (const string &expr, bool &success) {
 		stringstream ss;
 		ss << expr;
 		int num;
 		ss >> num;
 		if (ss.fail()) {
-			return false;
+		    success = false; 	
+		} else {
+		    success = true; 
 		}
-		return true;
+		return num;
 	};
 
 
 	bool isVarName (const string &expr) {
 		for (string::const_iterator it = expr.begin(); it != expr.end(); it++) {
 			char c = *it;
-			if (!(c >= 'A' && c <= 'Z') && !(c >= 'a' && c <= 'z')) {
+			if (!(c >= 'A' && c <= 'Z') && !(c >= 'a' && c <= 'z')) { //variable name must only be letters
 				return false;
 			}
 		}
@@ -115,8 +117,11 @@ private:
 		left = getNumForOp(num1, success); 
 		if (!success) { return 0; } 
 
-		success = true; 
+		
+		if (op.length() > 1) { success = false; return 0; } //check if valid operator
 		char c = op[0]; 
+		
+		success = true; 
 		switch(c) {
 		    case '+': 
 			return left + right; 
@@ -125,12 +130,12 @@ private:
 		    case '*': 
 			return left * right; 
 		    case '/': 
-			if (right == 0) { 
+			if (right == 0) { //operation fails if div by 0 
 			    success = false; 
 			    return 0; 
 			}
 			return left / right; 
-		    default: 
+		    default:	//op is not a valid operator 
 			success = false; 
 		}
 
@@ -146,20 +151,17 @@ private:
             }
 
 	    success = true; 
-            variables[var] = value;
+            variables[var] = value; 
             return value; 
 	
 	}
 	int getNumForOp (const string &numStr, bool &success) {
 	    int numVal; 
-	    if (isInt(numStr)) {
-                    stringstream ss;
-                    ss << numStr;
-                    ss >> numVal;
-		    success = true; 
-		    return numVal;
+	    numVal = getInt(numStr, success); 
+	    if (success) { //valid number
+		return numVal; 
 	    }
-	    if (isVarName(numStr)) {
+	    if (isVarName(numStr)) { //get number from map
 		map<string, int>::iterator it = variables.find(numStr);
                 if (it != variables.end()) {
 		    success = true; 
@@ -173,12 +175,6 @@ private:
 	
 
 };
-
-
-
-
-
-// for printing: cout << s.length() << endl
 
 
 extern "C" struct Calc *calc_create(void) {
