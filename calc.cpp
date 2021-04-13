@@ -20,7 +20,7 @@ private:
 
 public:
     int evalExpr(const std::string &expr, int &result) {  // on error, just return 0!
-		vector<string> tokens = tokenize(expr);
+		vector<string> tokens = tokenize(expr); //segment string expression into tokens, skipping whitespace
 		int size = tokens.size();
 		bool success = false; //used to track whether operation pefromed successfully
 		if (size == 1) {    // length 1: could be operand or error 
