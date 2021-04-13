@@ -13,9 +13,10 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 	int port = atoi(argv[1]);
-	if (port == 0) {
+	if (port < 1024) {
 		printf("Argument should be a port number greater than or equal to 1024");
-	}
+		return 1;
+	} 
 
 	int listeningFD = open_listenfd(argv[1]);
 	struct Calc * calc = calc_create();
