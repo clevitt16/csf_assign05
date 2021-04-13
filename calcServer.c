@@ -7,24 +7,24 @@
 int chat_with_client(struct Calc *calc, int infd, int outfd);
 
 int main(int argc, char **argv) {
-	/* TODO: implement this program */
+	// command-line input error handling
 	if (argc != 2) {
-		printf("Server program needs a single argument specifying port");
+		printf("Server program needs a single argument specifying port\n");
 		return 1;
 	}
 	int port = atoi(argv[1]);
 	if (port < 1024) {
-		printf("Argument should be a port number greater than or equal to 1024");
+		printf("Argument should be a port number greater than or equal to 1024\n");
 		return 1;
 	} 
-
+	// create server socket and Calc object
 	int listeningFD = open_listenfd(argv[1]);
 	struct Calc * calc = calc_create();
-	while(1) {
+	while(1) {    // loop will continue listening and accepting connections until shutdown called
 		int clientFD = accept(listeningFD, NULL, NULL);
 		int chatStatus = chat_with_client(calc, clientFD, clientFD);
 		close(clientFD);
-		printf("Connection closed by foreign host.");
+		printf("Connection closed by foreign host.\n");
 		if (chatStatus == 1) {
 			break;
 		}
@@ -34,14 +34,12 @@ int main(int argc, char **argv) {
 }
 
 
-
+// added functionality for shutdown command
 int chat_with_client(struct Calc *calc, int infd, int outfd) {
 	rio_t in;
 	char linebuf[LINEBUF_SIZE];
-
 	/* wrap standard input (which is file descriptor 0) */
 	rio_readinitb(&in, infd);
-
 	/*
 	 * Read lines of input, evaluate them as calculator expressions,
 	 * and (if evaluation was successful) print the result of each
