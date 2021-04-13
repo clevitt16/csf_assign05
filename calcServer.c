@@ -15,7 +15,7 @@ int main(int argc, char **argv) {
 		printf("Argument should be a port number greater than or equal to 1024");
 	}
 
-	int listeningFD = open_listenfd(port);
+	int listeningFD = open_listenfd(argv[1]);
 	struct Calc * calc = calc_create();
 	while(1) {
 		struct sockaddr_in clientaddr;
