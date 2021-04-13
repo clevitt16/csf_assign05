@@ -4,6 +4,8 @@
 
 #define LINEBUF_SIZE 1024
 
+int chat_with_client(struct Calc *calc, int infd, int outfd);
+
 int main(int argc, char **argv) {
 	/* TODO: implement this program */
 	if (argc != 2) {
