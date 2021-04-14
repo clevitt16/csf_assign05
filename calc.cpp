@@ -1,3 +1,12 @@
+/*
+ * implementation of Calc struct & calculator functionality
+ * CSF Assignment 5
+ * C. Levitt
+ * clevitt1@jh.edu
+ * T. Karani
+ * tkarani1@jh.edu
+*/
+
 #include "calc.h"
 #include <string>
 #include <iostream>
@@ -62,9 +71,7 @@ struct Calc {
 				result = value; 
 				return 1; 
 			} 
-
 			return 0; 	
-
 		};
 
 	private:
@@ -151,8 +158,8 @@ struct Calc {
 			success = true; 
 			variables[var] = value; 
 			return value; 
-
-		}
+		};
+		
 		int getNumForOp (const string &numStr, bool &success) {
 			int numVal; 
 			numVal = getInt(numStr, success); 
@@ -166,12 +173,9 @@ struct Calc {
 					return variables[numStr]; 
 				}
 			}
-
 			success = false; 
 			return 0; 
 		};
-
-
 };
 
 

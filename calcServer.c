@@ -1,3 +1,12 @@
+/*
+ * Calculator Server implementation
+ * CSF Assignment 5
+ * C. Levitt
+ * clevitt1@jh.edu
+ * T. Karani
+ * tkarani1@jh.edu
+*/
+
 #include <stdio.h>      /* for snprintf */
 #include "csapp.h"
 #include "calc.h"
