@@ -10,10 +10,11 @@
 #include <stdio.h>      /* for snprintf */
 #include "csapp.h"
 #include "calc.h"
+#include "calcServer.h"
+#include <pthread.h>
 
 #define LINEBUF_SIZE 1024
 
-int chat_with_client(struct Calc *calc, int infd, int outfd);
 
 int main(int argc, char **argv) {
 	// command-line input error handling
@@ -31,12 +32,22 @@ int main(int argc, char **argv) {
 	struct Calc * calc = calc_create();
 	while(1) {    // loop will continue listening and accepting connections until shutdown called
 		int clientFD = accept(listeningFD, NULL, NULL);
-		int chatStatus = chat_with_client(calc, clientFD, clientFD);
-		close(clientFD);
-		printf("Connection closed by foreign host.\n");
-		if (chatStatus == 1) {
-			break;
+		if (clientFD < 0) {
+			fatal("Error accepting client connection"); //??
 		}
+		Client * clientInfo = malloc(sizeof(Client));
+		clientInfo->fd = clientFD;
+		clientInfo->calc = calc; 
+		pthread_t thr_id;
+		if (pthread_create(&thr_id, NULL, worker, clientInfo) != 0) {
+			fatal("pthread_create failed"); // ??
+		}
+		// int chatStatus = chat_with_client(calc, clientFD, clientFD);
+		//close(clientFD);
+		//printf("Connection closed by foreign host.\n");
+		//if (chatStatus == 1) {
+	//		break;
+	//	}
 	}
 	calc_destroy(calc);
 	return 0;
@@ -82,4 +93,14 @@ int chat_with_client(struct Calc *calc, int infd, int outfd) {
 		}
 	}
 	return 0;
+}
+
+
+void *worker(void *arg) {
+	Client * clientInfo = arg;
+	pthread_detatch(pthread_self());
+	int chatStatus = chat_with_client(clientInfo->calc, clientInfo->fd, clientInfo->fd);
+	close(clientInfo->fd);
+	printf("Connection closed by foreign host.\n");
+	// return something to indicate shutdown?
 }

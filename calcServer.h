@@ -13,8 +13,10 @@
 
 
 typedef struct {
-	int fileDescriptor;
+	int fd;
 	struct Calc * calc;
 } Client;
 
 int chat_with_client(struct Calc *calc, int infd, int outfd);
+
+void *worker(void *arg);
