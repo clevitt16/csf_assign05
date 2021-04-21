@@ -14,8 +14,7 @@
 #include <pthread.h>
 
 #define LINEBUF_SIZE 1024
-
-
+void fatal(char* s);
 int main(int argc, char **argv) {
 	// command-line input error handling
 	if (argc != 2) {
@@ -98,9 +97,18 @@ int chat_with_client(struct Calc *calc, int infd, int outfd) {
 
 void *worker(void *arg) {
 	Client * clientInfo = arg;
-	pthread_detatch(pthread_self());
+	pthread_detach(pthread_self());
 	int chatStatus = chat_with_client(clientInfo->calc, clientInfo->fd, clientInfo->fd);
 	close(clientInfo->fd);
 	printf("Connection closed by foreign host.\n");
 	// return something to indicate shutdown?
+}
+
+void fatal(char* s) {
+
+    printf("%s\n", s); 
+    exit(1); 
+
+
+
 }
