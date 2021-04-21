@@ -14,8 +14,7 @@
 #include <pthread.h>
 
 #define LINEBUF_SIZE 1024
-
-
+void fatal(char* s);
 int main(int argc, char **argv) {
 	// command-line input error handling
 	if (argc != 2) {
@@ -98,4 +97,13 @@ void *worker(void *arg) {
 	printf("Connection closed by foreign host.\n");
 	free(clientInfo);
 	return NULL;
+}
+
+void fatal(char* s) {
+
+    printf("%s\n", s); 
+    exit(1); 
+
+
+
 }
