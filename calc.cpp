@@ -13,6 +13,7 @@
 #include <map>
 #include <vector>
 #include <sstream>
+#include <pthread.h> // is this how to include it?
 
 
 using std::string;
@@ -24,6 +25,9 @@ using std::stringstream;
 
 
 struct Calc {
+	public:
+		pthread_mutex_t mutex; // is this where this goes?
+	
 	private:
 		map<string, int> variables;
 

@@ -33,21 +33,15 @@ int main(int argc, char **argv) {
 	while(1) {    // loop will continue listening and accepting connections until shutdown called
 		int clientFD = accept(listeningFD, NULL, NULL);
 		if (clientFD < 0) {
-			fatal("Error accepting client connection"); //??
+			print("Error accepting client connection"); //?? what to do on failure?
 		}
 		Client * clientInfo = malloc(sizeof(Client));
 		clientInfo->fd = clientFD;
 		clientInfo->calc = calc; 
 		pthread_t thr_id;
 		if (pthread_create(&thr_id, NULL, worker, clientInfo) != 0) {
-			fatal("pthread_create failed"); // ??
+			print("pthread_create failed"); // ??
 		}
-		// int chatStatus = chat_with_client(calc, clientFD, clientFD);
-		//close(clientFD);
-		//printf("Connection closed by foreign host.\n");
-		//if (chatStatus == 1) {
-	//		break;
-	//	}
 	}
 	calc_destroy(calc);
 	return 0;
@@ -98,9 +92,10 @@ int chat_with_client(struct Calc *calc, int infd, int outfd) {
 
 void *worker(void *arg) {
 	Client * clientInfo = arg;
-	pthread_detatch(pthread_self());
+	pthread_detach(pthread_self());
 	int chatStatus = chat_with_client(clientInfo->calc, clientInfo->fd, clientInfo->fd);
 	close(clientInfo->fd);
 	printf("Connection closed by foreign host.\n");
-	// return something to indicate shutdown?
+	free(clientInfo);
+	return NULL;
 }
