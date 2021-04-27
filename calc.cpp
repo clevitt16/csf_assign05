@@ -25,13 +25,19 @@ using std::stringstream;
 
 
 struct Calc {
-	public:
-		pthread_mutex_t mutex; // is this where this goes?
 	
 	private:
+		pthread_mutex_t mutex; 
 		map<string, int> variables;
 
 	public:
+		Calc() {
+			pthread_mutex_init(&mutex, NULL);
+		}
+		~Calc() {
+			pthread_mutex_destroy(&mutex);
+		}
+
 		int evalExpr(const std::string &expr, int &result) {  // on error, just return 0!
 			vector<string> tokens = tokenize(expr); //segment string expression into tokens, skipping whitespace
 			int size = tokens.size();
@@ -42,36 +48,33 @@ struct Calc {
 					result = value; 
 					return 1; 
 				}
-
 				// check map for value of variable
+				pthread_mutex_lock(&mutex);
 				map<string, int>::iterator it = variables.find(tokens[0]);
 				if (it != variables.end()) { //variable in the map
 					result = variables[tokens[0]]; //get the variable from the map 
+					pthread_mutex_unlock(&mutex);
 					return 1;
 				} 
-
+				pthread_mutex_unlock(&mutex);
 				return 0; //not a number, not a variable in the map
-
 			} else if (size == 3) {  // Can be an operation (with numbers or variables) or an assignment
 				int value =  performOp(tokens[0], tokens[1], tokens[2], success); 
 				if (!success) { return 0; } 
 				result = value; 
 				return 1; 
 			} else if (size == 5) {  // Assignment to an operation
-
 				//must be an assignment operation
 				if (tokens[1] != "=") { return 0; }
-
 				//cannot have two assignment operations (a = 5 = 3)
 				if (tokens[3] == "=") {  return 0; }
-
 				//assignment must happen with a variable
 				if (!isVarName(tokens[0])) { return 0; }
-
 				int value = performOp(tokens[2], tokens[3], tokens[4], success);
-
 				if (!success) { return 0; }
+				pthread_mutex_lock(&mutex);
 				variables[tokens[0]] = value; 
+				pthread_mutex_unlock(&mutex);
 				result = value; 
 				return 1; 
 			} 
@@ -116,20 +119,15 @@ struct Calc {
 
 		int performOp (const string &num1, const string &op, const string &num2, bool &success) {
 			int left, right;
-
 			right = getNumForOp(num2, success);
 			if (!success) { return 0; }
-
 			if (op == "=") {
 				return performAssign(num1, right, success); 	
 			}
 			left = getNumForOp(num1, success); 
 			if (!success) { return 0; } 
-
-
 			if (op.length() > 1) { success = false; return 0; } //check if valid operator
 			char c = op[0]; 
-
 			success = true; 
 			switch(c) {
 				case '+': 
@@ -147,20 +145,18 @@ struct Calc {
 				default:	//op is not a valid operator 
 					success = false; 
 			}
-
 			return 0; 
-
 		};
 
 		int performAssign(const string &var, int value, bool &success) {
-
 			if (!isVarName(var)) {
 				success = false; 
 				return 0;
 			}
-
 			success = true; 
+			pthread_mutex_lock(&mutex);
 			variables[var] = value; 
+			pthread_mutex_unlock(&mutex);
 			return value; 
 		};
 		
@@ -171,13 +167,16 @@ struct Calc {
 				return numVal; 
 			}
 			if (isVarName(numStr)) { //get number from map
+				pthread_mutex_lock(&mutex);
 				map<string, int>::iterator it = variables.find(numStr);
 				if (it != variables.end()) {
 					success = true; 
+					pthread_mutex_unlock(&mutex);
 					return variables[numStr]; 
 				}
 			}
 			success = false; 
+			pthread_mutex_unlock(&mutex);
 			return 0; 
 		};
 };
