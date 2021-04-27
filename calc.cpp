@@ -59,9 +59,9 @@ struct Calc {
 				pthread_mutex_unlock(&mutex);
 				return 0; //not a number, not a variable in the map
 			} else if (size == 3) {  // Can be an operation (with numbers or variables) or an assignment
-				pthread_mutex_lock(&mutex);
+				//pthread_mutex_lock(&mutex);
 				int value =  performOp(tokens[0], tokens[1], tokens[2], success); 
-				pthread_mutex_unlock(&mutex);
+				//pthread_mutex_unlock(&mutex);
 				if (!success) { return 0; } 
 				result = value; 
 				return 1; 
@@ -72,12 +72,13 @@ struct Calc {
 				if (tokens[3] == "=") {  return 0; }
 				//assignment must happen with a variable
 				if (!isVarName(tokens[0])) { return 0; }
-				pthread_mutex_lock(&mutex);
+				//pthread_mutex_lock(&mutex);
 				int value = performOp(tokens[2], tokens[3], tokens[4], success);
 				if (!success) { 
-					pthread_mutex_unlock(&mutex);
+					//pthread_mutex_unlock(&mutex);
 					return 0; 
 				}
+				pthread_mutex_lock(&mutex);
 				variables[tokens[0]] = value; 
 				pthread_mutex_unlock(&mutex);
 				result = value; 
@@ -124,12 +125,17 @@ struct Calc {
 
 		int performOp (const string &num1, const string &op, const string &num2, bool &success) {
 			int left, right;
+			pthread_mutex_lock(&mutex);
 			right = getNumForOp(num2, success);
-			if (!success) { return 0; }
+			if (!success) { 
+				pthread_mutex_unlock(&mutex);
+				return 0; 
+			}
 			if (op == "=") {
 				return performAssign(num1, right, success); 	
 			}
 			left = getNumForOp(num1, success); 
+			pthread_mutex_unlock(&mutex);
 			if (!success) { return 0; } 
 			if (op.length() > 1) { success = false; return 0; } //check if valid operator
 			char c = op[0]; 
