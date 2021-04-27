@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 	int port = atoi(argv[1]);
-	if (port < 1024) {
+	if (port < LINEBUF_SIZE) {
 		printf("Argument should be a port number greater than or equal to 1024\n");
 		return 1;
 	} 
@@ -92,7 +92,6 @@ int chat_with_client(struct Calc *calc, int infd, int outfd) {
 void *worker(void *arg) {
 	Client * clientInfo = arg;
 	pthread_detach(pthread_self());
-	//int chatStatus = chat_with_client(clientInfo->calc, clientInfo->fd, clientInfo->fd);
 	chat_with_client(clientInfo->calc, clientInfo->fd, clientInfo->fd);
 	close(clientInfo->fd);
 	printf("Connection closed by foreign host.\n");
