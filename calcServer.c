@@ -5,7 +5,7 @@
  * clevitt1@jh.edu
  * T. Karani
  * tkarani1@jh.edu
-*/
+ */
 
 #include <stdio.h>      /* for snprintf */
 #include "csapp.h"
@@ -27,19 +27,19 @@ int main(int argc, char **argv) {
 		return 1;
 	} 
 	// create server socket and Calc object
-	int listeningFD = open_listenfd(argv[1]);
+	int listeningFD = Open_listenfd(argv[1]);
 	struct Calc * calc = calc_create();
 	while(1) {    // loop will continue listening and accepting connections until shutdown called
-		int clientFD = accept(listeningFD, NULL, NULL);
+		int clientFD = Accept(listeningFD, NULL, NULL);
 		if (clientFD < 0) {
-			print("Error accepting client connection"); //?? what to do on failure?
+			printf("Error accepting client connection"); //?? what to do on failure?
 		}
 		Client * clientInfo = malloc(sizeof(Client));
 		clientInfo->fd = clientFD;
 		clientInfo->calc = calc; 
 		pthread_t thr_id;
 		if (pthread_create(&thr_id, NULL, worker, clientInfo) != 0) {
-			print("pthread_create failed"); // ??
+			printf("pthread_create failed"); // ??
 		}
 	}
 	calc_destroy(calc);
@@ -92,18 +92,11 @@ int chat_with_client(struct Calc *calc, int infd, int outfd) {
 void *worker(void *arg) {
 	Client * clientInfo = arg;
 	pthread_detach(pthread_self());
-	int chatStatus = chat_with_client(clientInfo->calc, clientInfo->fd, clientInfo->fd);
+	//int chatStatus = chat_with_client(clientInfo->calc, clientInfo->fd, clientInfo->fd);
+	chat_with_client(clientInfo->calc, clientInfo->fd, clientInfo->fd);
 	close(clientInfo->fd);
 	printf("Connection closed by foreign host.\n");
 	free(clientInfo);
 	return NULL;
 }
 
-void fatal(char* s) {
-
-    printf("%s\n", s); 
-    exit(1); 
-
-
-
-}
