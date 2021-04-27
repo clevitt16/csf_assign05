@@ -9,3 +9,18 @@ Casey worked more on the server program, writing the bulk of the main function i
 
 Assignment 6 MS1
 Trisha and Casey worked on creating multiple threads together. 
+
+Assignment 6 MS2
+Trisha and Casey worked together to finish handling concurrent client connections and implement synchronization.
+
+
+We made the shared Calc struct same to access from multiple threads using a mutex. The Calc struct has a private
+field of type pthread_mutex_t that is initialized in the constructor and destroyed in the destructor. The data in
+need of protection is the map of stored variables. This map is accessed/modified when a variable name is looked up,
+and when new variables are entered in the map. However, it's possible for both of these to occur in the span of one 
+operation (for example: a = b + c). Therefore, we need to ensure that the map will not change for the entirely of 
+this operation.
+
+In struct Calc function evalExpr, we lock and unlock the mutex around calls to performOp(), a helper function that
+handles the entirety of arithmetic operations. We also lock and unlock the mutex when looking up a variable name in 
+the case of 1 argument.
